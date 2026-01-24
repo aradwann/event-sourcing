@@ -15,6 +15,7 @@ pub enum ProjectorMessage {
         attacker: String,
         reply: oneshot::Sender<u64>,
     },
+    WeekCompleted,
 }
 
 #[derive(Debug, Clone)]
@@ -36,6 +37,10 @@ impl ProjectorState {
 
         sorted.sort_by(|a, b| b.1.cmp(&a.1)); // Sort descending by score
         self.top10 = sorted.into_iter().take(10).collect();
+    }
+
+    fn reset_scores(&mut self) {
+        self.scores.clear();
     }
 }
 
@@ -63,6 +68,10 @@ impl Projector {
                     ProjectorMessage::GetScore { attacker, reply } => {
                         let score = state.scores.get(&attacker).copied().unwrap_or(0);
                         let _ = reply.send(score);
+                    }
+                    ProjectorMessage::WeekCompleted => {
+                        state.reset_scores();
+                        state.rerank();
                     }
                 }
             }
