@@ -1,2 +1,0 @@
-mod calculator;
-mod leaderboard;
